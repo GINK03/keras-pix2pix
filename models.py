@@ -250,19 +250,19 @@ def load(model_name, img_dim, nb_patch, bn_mode, use_mbd, batch_size):
     model = generator_unet_upsampling(img_dim, bn_mode, model_name=model_name)
     print( model.summary() )
     from keras.utils.vis_utils import plot_model as plot
-    plot(model, to_file='../../figures/%s.png' % model_name, show_shapes=True, show_layer_names=True)
+    plot(model, to_file='imgs/%s.png' % model_name, show_shapes=True, show_layer_names=True)
     return model
   if model_name == "generator_unet_deconv":
     model = generator_unet_deconv(img_dim, bn_mode, batch_size, model_name=model_name)
     print( model.summary() )
     from keras.utils.vis_utils import plot_model as plot
-    plot(model, to_file='../../figures/%s.png' % model_name, show_shapes=True, show_layer_names=True)
+    plot(model, to_file='imgs/%s.png' % model_name, show_shapes=True, show_layer_names=True)
     return model
   if model_name == "DCGAN_discriminator":
     model = DCGAN_discriminator(img_dim, nb_patch, bn_mode, model_name=model_name, use_mbd=use_mbd)
     model.summary()
     from keras.utils.vis_utils import plot_model as plot
-    plot(model, to_file='../../figures/%s.png' % model_name, show_shapes=True, show_layer_names=True)
+    plot(model, to_file='imgs/%s.png' % model_name, show_shapes=True, show_layer_names=True)
     return model
 
 if __name__ == '__main__':

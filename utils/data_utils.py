@@ -42,7 +42,7 @@ def extract_patches(X, image_dim_ordering, patch_size):
   return list_X
 
 def load_data(dset, image_dim_ordering):
-  with h5py.File("../../data/processed/%s_data.h5" % dset, "r") as hf:
+  with h5py.File("data/%s_data.h5" % dset, "r") as hf:
     X_full_train = hf["train_data_full"][:].astype(np.float32)
     X_full_train = normalization(X_full_train)
     X_sketch_train = hf["train_data_sketch"][:].astype(np.float32)
@@ -123,6 +123,6 @@ def plot_generated_batch(X_full, X_sketch, generator_model, batch_size, image_di
   else:
     plt.imshow(Xr)
   plt.axis("off")
-  plt.savefig("../../figures/current_batch_%s.png" % suffix)
+  plt.savefig("imgs/current_batch_%s.png" % suffix)
   plt.clf()
   plt.close()

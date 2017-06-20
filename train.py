@@ -7,7 +7,7 @@ from keras.utils import generic_utils
 from keras.optimizers import Adam, SGD
 import keras.backend as K
 # Utils
-sys.path.append("../utils")
+sys.path.append("utils")
 import general_utils
 import data_utils
 
