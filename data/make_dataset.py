@@ -10,6 +10,7 @@ import matplotlib.pylab as plt
 
 from PIL import Image
 def format_image(img_path, size, nb_channels):
+  print( img_path )
   """
   Load img with opencv and reshape
   """
