@@ -11,6 +11,10 @@ sys.path.append("utils")
 import general_utils
 import data_utils
 
+
+""" Appendix """
+import data_manage
+
 def l1_loss(y_true, y_pred):
     return K.sum(K.abs(y_pred - y_true), axis=-1)
 def train(**kwargs):
@@ -38,8 +42,12 @@ def train(**kwargs):
   # Setup environment (logging directory etc)
   general_utils.setup_logging(model_name)
   # Load and rescale data
-  X_full_train, X_sketch_train, X_full_val, X_sketch_val = data_utils.load_data(dset, image_dim_ordering)
-  img_dim = X_full_train.shape[-3:]
+  """ H5は利用しない """
+  # X_full_train, X_sketch_train, X_full_val, X_sketch_val = data_utils.load_data(dset, image_dim_ordering)
+  # img_dim = X_full_train.shape[-3:]
+  # print( img_dim )
+  """ ADHOC """
+  img_dim  = (256, 256, 3)
   # Get the number of non overlapping patch and the size of input image to the discriminator
   nb_patch, img_dim_disc = data_utils.get_nb_patch(img_dim, patch_size, image_dim_ordering)
   try:
@@ -83,7 +91,12 @@ def train(**kwargs):
       progbar = generic_utils.Progbar(epoch_size)
       batch_counter = 1
       start = time.time()
-      for X_full_batch, X_sketch_batch in data_utils.gen_batch(X_full_train, X_sketch_train, batch_size):
+      #for X_full_batch, X_sketch_batch in data_utils.gen_batch(X_full_train, X_sketch_train, batch_size):
+      for X_full_batch, X_sketch_batch in data_manage.getTrain(batch_size):
+        print()
+        print( "batch size", batch_size )
+        print( "X shape", X_full_batch.shape ) 
+        print( "X shape", X_sketch_batch.shape ) 
         # Create a batch to feed the discriminator model
         X_disc, y_disc = data_utils.get_disc_batch(X_full_batch,
                                                    X_sketch_batch,
@@ -94,9 +107,16 @@ def train(**kwargs):
                                                    label_smoothing=label_smoothing,
                                                    label_flipping=label_flipping)
         # Update the discriminator
+        # print( X_disc )
+        print( "X_disc shape", X_disc[0].shape ) 
+        """ 実験的に上書き """
+        #X_disc, y_disc = data_manage.getTrain( 4 )
         disc_loss = discriminator_model.train_on_batch(X_disc, y_disc)
         # Create a batch to feed the generator model
-        X_gen_target, X_gen = next(data_utils.gen_batch(X_full_train, X_sketch_train, batch_size))
+        """ ここよくわかんない """
+        """ ランダムでインデックス取ってる? """
+        #X_gen_target, X_gen = next(data_utils.gen_batch(X_full_train, X_sketch_train, batch_size))
+        X_gen_target, X_gen = next(data_manage.getTrain(batch_size))
         y_gen               = np.zeros((X_gen.shape[0], 2), dtype=np.uint8)
         y_gen[:, 1]         = 1
         # Freeze the discriminator
@@ -114,7 +134,9 @@ def train(**kwargs):
           # Get new images from validation
           data_utils.plot_generated_batch(X_full_batch, X_sketch_batch, generator_model,
                                           batch_size, image_dim_ordering, "training")
-          X_full_batch, X_sketch_batch = next(data_utils.gen_batch(X_full_val, X_sketch_val, batch_size))
+          #X_full_batch, X_sketch_batch = next(data_utils.gen_batch(X_full_val, X_sketch_val, batch_size))
+          X_full_batch, X_sketch_batch = next(data_manage.getValids(batch_size))
+        
           data_utils.plot_generated_batch(X_full_batch, X_sketch_batch, generator_model,
                                           batch_size, image_dim_ordering, "validation")
         if batch_counter >= n_batch_per_epoch:
