@@ -8,7 +8,7 @@ from   pathlib import Path
 from   tqdm    import tqdm as tqdm
 import matplotlib.pylab as plt
 
-
+from PIL import Image
 def format_image(img_path, size, nb_channels):
   """
   Load img with opencv and reshape
@@ -29,7 +29,10 @@ def format_image(img_path, size, nb_channels):
   if nb_channels == 1:
       img_full = np.expand_dims(img_full, -1)
       img_sketch = np.expand_dims(img_sketch, -1)
-  img_full = np.expand_dims(img_full, 0).transpose(0, 3, 1, 2)
+  img = Image.fromarray( img_sketch )
+  img.save("t.jpg")
+  """ NOTICE この並びにする """
+  img_full   = np.expand_dims(img_full, 0).transpose(0, 3, 1, 2)
   img_sketch = np.expand_dims(img_sketch, 0).transpose(0, 3, 1, 2)
   return img_full, img_sketch
 
@@ -59,8 +62,8 @@ def build_HDF5(jpeg_dir, nb_channels, size=256):
       num_chunks = num_files / chunk_size
       arr_chunks = np.array_split(np.arange(num_files), num_chunks)
       for chunk_idx in tqdm(arr_chunks):
-        list_img_path = list_img[chunk_idx].tolist()
-        output = parmap.map(format_image, list_img_path, size, nb_channels, parallel=False)
+        list_img_path  = list_img[chunk_idx].tolist()
+        output         = parmap.map(format_image, list_img_path, size, nb_channels, parallel=False)
         arr_img_full   = np.concatenate([o[0] for o in output], axis=0)
         arr_img_sketch = np.concatenate([o[1] for o in output], axis=0)
         # Resize HDF5 dataset
@@ -102,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--do_plot', action="store_true",
                         help='Plot the images to make sure the data processing went OK')
     args = parser.parse_args()
-    data_dir = "../../data/processed"
+    data_dir = ""
     build_HDF5(args.jpeg_dir, args.nb_channels, size=args.img_size)
 
     if args.do_plot:
