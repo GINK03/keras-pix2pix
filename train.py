@@ -47,7 +47,7 @@ def train(**kwargs):
   # img_dim = X_full_train.shape[-3:]
   # print( img_dim )
   """ ADHOC """
-  img_dim  = (256, 256, 3)
+  img_dim  = (256, 256, 6)
   # Get the number of non overlapping patch and the size of input image to the discriminator
   nb_patch, img_dim_disc = data_utils.get_nb_patch(img_dim, patch_size, image_dim_ordering)
   try:
@@ -93,10 +93,12 @@ def train(**kwargs):
       start = time.time()
       #for X_full_batch, X_sketch_batch in data_utils.gen_batch(X_full_train, X_sketch_train, batch_size):
       for X_full_batch, X_sketch_batch in data_manage.getTrain(batch_size):
+        """
         print()
         print( "batch size", batch_size )
         print( "X shape", X_full_batch.shape ) 
         print( "X shape", X_sketch_batch.shape ) 
+        """
         # Create a batch to feed the discriminator model
         X_disc, y_disc = data_utils.get_disc_batch(X_full_batch,
                                                    X_sketch_batch,
@@ -108,7 +110,9 @@ def train(**kwargs):
                                                    label_flipping=label_flipping)
         # Update the discriminator
         # print( X_disc )
+        """
         print( "X_disc shape", X_disc[0].shape ) 
+        """
         """ 実験的に上書き """
         #X_disc, y_disc = data_manage.getTrain( 4 )
         disc_loss = discriminator_model.train_on_batch(X_disc, y_disc)
@@ -133,12 +137,12 @@ def train(**kwargs):
         if batch_counter % (n_batch_per_epoch / 2) == 0:
           # Get new images from validation
           data_utils.plot_generated_batch(X_full_batch, X_sketch_batch, generator_model,
-                                          batch_size, image_dim_ordering, "training")
+                                          batch_size, image_dim_ordering, "training_%09d"%e)
           #X_full_batch, X_sketch_batch = next(data_utils.gen_batch(X_full_val, X_sketch_val, batch_size))
           X_full_batch, X_sketch_batch = next(data_manage.getValids(batch_size))
         
           data_utils.plot_generated_batch(X_full_batch, X_sketch_batch, generator_model,
-                                          batch_size, image_dim_ordering, "validation")
+                                          batch_size, image_dim_ordering, "validation_%09d"%e)
         if batch_counter >= n_batch_per_epoch:
           break
       print("")

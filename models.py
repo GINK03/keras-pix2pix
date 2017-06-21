@@ -50,6 +50,8 @@ def deconv_block_unet(x, x2, f, h, w, batch_size, name, bn_mode, bn_axis, bn=Tru
   return x
 
 def generator_unet_upsampling(img_dim, bn_mode, model_name="generator_unet_upsampling"):
+  print( "use generator_unet_upsampling!" )
+  output_dim = (256, 256, 3)
   nb_filters = 64
   bn_axis = -1
   nb_channels = img_dim[-1]
@@ -82,7 +84,8 @@ def generator_unet_upsampling(img_dim, bn_mode, model_name="generator_unet_upsam
     list_decoder.append(conv)
   x = Activation("relu")(list_decoder[-1])
   x = UpSampling2D(size=(2, 2))(x)
-  x = Convolution2D(nb_channels, 3, 3, name="last_conv", border_mode="same")(x)
+  #x = Convolution2D(nb_channels, 3, 3, name="last_conv", border_mode="same")(x)
+  x = Convolution2D(3, 3, 3, name="last_conv", border_mode="same")(x)
   x = Activation("tanh")(x)
 
   generator_unet = Model(input=[unet_input], output=[x])
@@ -168,7 +171,9 @@ def DCGAN_discriminator(img_dim, nb_patch, bn_mode, model_name="DCGAN_discrimina
   list_filters = [nb_filters * min(8, (2 ** i)) for i in range(nb_conv)]
 
   # First conv
-  x_input = Input(shape=img_dim, name="discriminator_input")
+  """ ADHOC """
+  #x_input = Input(shape=img_dim, name="discriminator_input")
+  x_input = Input(shape=(256,256,3), name="discriminator_input")
   x = Convolution2D(list_filters[0], 3, 3, subsample=(2, 2), name="disc_conv2d_1", border_mode="same")(x_input)
   #x = BatchNormalization(mode=bn_mode, axis=bn_axis)(x)
   x = BatchNormalization(axis=bn_axis)(x)
@@ -259,7 +264,9 @@ def load(model_name, img_dim, nb_patch, bn_mode, use_mbd, batch_size):
     plot(model, to_file='imgs/%s.png' % model_name, show_shapes=True, show_layer_names=True)
     return model
   if model_name == "DCGAN_discriminator":
-    model = DCGAN_discriminator(img_dim, nb_patch, bn_mode, model_name=model_name, use_mbd=use_mbd)
+    """ USE ADHOC """
+    #model = DCGAN_discriminator(img_dim, nb_patch, bn_mode, model_name=model_name, use_mbd=use_mbd)
+    model = DCGAN_discriminator((256,256,3), nb_patch, bn_mode, model_name=model_name, use_mbd=use_mbd)
     model.summary()
     from keras.utils.vis_utils import plot_model as plot
     plot(model, to_file='imgs/%s.png' % model_name, show_shapes=True, show_layer_names=True)
