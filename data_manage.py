@@ -6,14 +6,20 @@ import random
 trains = []
 valids = []
 def init():
-  for name in glob.glob("data/datasets/*.pkl"):
+  files = glob.glob("data/datasets/*.pkl")
+  random.shuffle( files )
+  for name in files[:int( len(files)*9/10 ) ]:
     print( name )
     x,y = pickle.loads( open(name, "rb").read() )
     """ normalize """
     x = x / 127.5 - 1
     y = y / 127.5 - 1
     trains.append( (x,y) )
-  for name in glob.glob("data/datasets/*.pkl"):
+
+  files = glob.glob("data/datasets/*.pkl")
+  random.shuffle( files )
+
+  for name in files[:len(files)//10]:
     print( name )
     x,y = pickle.loads( open(name, "rb").read() )
     """ normalize """
@@ -49,3 +55,5 @@ def getValids(batch):
 
 if __name__ == '__main__':
   getTrain(4)
+  """ valids は最初一回のみシャッフルする """
+  random.shuffle( valids ) 

@@ -84,6 +84,7 @@ def generator_unet_upsampling(img_dim, bn_mode, model_name="generator_unet_upsam
     list_decoder.append(conv)
   x = Activation("relu")(list_decoder[-1])
   x = UpSampling2D(size=(2, 2))(x)
+  """ ADHOC """
   #x = Convolution2D(nb_channels, 3, 3, name="last_conv", border_mode="same")(x)
   x = Convolution2D(3, 3, 3, name="last_conv", border_mode="same")(x)
   x = Activation("tanh")(x)
@@ -107,8 +108,8 @@ def generator_unet_deconv(img_dim, bn_mode, batch_size, model_name="generator_un
   list_nb_filters = [nb_filters * min(8, (2 ** i)) for i in range(nb_conv)]
 
   # Encoder
-  list_encoder = [Convolution2D(list_nb_filters[0], 3, 3,
-                                subsample=(2, 2), name="unet_conv2D_1", border_mode="same")(unet_input)]
+  list_encoder = [Convolution2D(list_nb_filters[0], 3, 3, \
+                   subsample=(2, 2), name="unet_conv2D_1", border_mode="same")(unet_input)]
   # update current "image" h and w
   h, w = h / 2, w / 2
   for i, f in enumerate(list_nb_filters[1:]):
@@ -123,12 +124,12 @@ def generator_unet_deconv(img_dim, bn_mode, batch_size, model_name="generator_un
     list_nb_filters.append(nb_filters)
 
   # Decoder
-  list_decoder = [deconv_block_unet(list_encoder[-1], list_encoder[-2],
-                                    list_nb_filters[0], h, w, batch_size,
-                                    "unet_upconv2D_1", bn_mode, bn_axis, dropout=True)]
+  list_decoder = [deconv_block_unet(list_encoder[-1], list_encoder[-2], \
+                    list_nb_filters[0], h, w, batch_size, \
+                    "unet_upconv2D_1", bn_mode, bn_axis, dropout=True)]
   h, w = h * 2, w * 2
   for i, f in enumerate(list_nb_filters[1:]):
-    name = "unet_upconv2D_%s" % (i + 2)
+    name = "unet_upconv2D_%s"%(i + 2)
     # Dropout only on first few layers
     if i < 2:
       d = True

@@ -101,17 +101,22 @@ def plot_generated_batch(X_full, X_sketch, generator_model, batch_size, image_di
   X_full = inverse_normalization(X_full)
   X_gen = inverse_normalization(X_gen)
   Xs = X_sketch[:8]
+  """ USE ADHOC """
+  Xs1 = Xs[:,:,:,:3]
+  Xs2 = Xs[:,:,:,3:]
+  #print( "Xs", Xs.shape )
   Xg = X_gen[:8]
+  #print( "Xg", Xg.shape )
   Xr = X_full[:8]
   if image_dim_ordering == "tf":
-    X = np.concatenate((Xs, Xg, Xr), axis=0)
+    X = np.concatenate((Xs1, Xs2, Xg, Xr), axis=0)
     list_rows = []
     for i in range(int(X.shape[0] / 4)):
         Xr = np.concatenate([X[k] for k in range(4 * i, 4 * (i + 1))], axis=1)
         list_rows.append(Xr)
     Xr = np.concatenate(list_rows, axis=0)
   if image_dim_ordering == "th":
-    X = np.concatenate((Xs, Xg, Xr), axis=0)
+    X = np.concatenate((Xs1, Xs2, Xg, Xr), axis=0)
     list_rows = []
     for i in range(int(X.shape[0] / 4)):
         Xr = np.concatenate([X[k] for k in range(4 * i, 4 * (i + 1))], axis=2)
